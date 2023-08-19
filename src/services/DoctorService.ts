@@ -21,8 +21,10 @@ export class DoctorService {
         const doctor: Doctor =  createDBMetaData({
             id: doctorId,
             name,
-            speciality
+            speciality,
+            bookingsCount: 0
         });
+
         return doctor;
     }
 }

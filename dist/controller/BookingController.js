@@ -7,8 +7,6 @@ const CommonUtils_1 = require("../utils/CommonUtils");
 class BookingController {
     constructor() {
         this.doctorSlots = new Set();
-        this.doctorBookings = new Set();
-        this.bookings = new Set();
     }
     markDocAvail(doctor, slots, isAvailable) {
         slots.forEach(slot => {
@@ -49,7 +47,7 @@ class BookingController {
         // }
         const userSlot = Array.from(this.doctorSlots).find(slot => slot.startTime == startEpoch && slot.userId == user.id);
         if (userSlot && userSlot.status == "BOOKED") {
-            console.error(`patient ${user.id} already has a booking at this hour with another doctor -> ${userSlot.doctorId}`);
+            console.error(`patient ${user.id} already has a booking at this hour with doctor -> ${userSlot.doctorId}`);
             return;
         }
         // check doctor slot if available
@@ -66,10 +64,7 @@ class BookingController {
         const bookingService = new BookingService_1.BookingService();
         const booking = bookingService.upsertAppointment(doctorSlot, user.id);
         this.doctorSlots.add(booking);
-        const doctorBooking = Array.from(this.doctorBookings).find(doc => doc.doctorId === doctor.id);
-        if (doctorBooking) {
-            Array.from(this.doctorBookings).find(doc => doc.doctorId === doctor.id).bookingsCount += 1;
-        }
+        doctor.bookingsCount++;
         console.log(`Booking Created:- ${booking.id}\nPatient: ${user.name} <-> Doctor: ${doctor.name} from ${startTime}`);
         return booking.id;
     }
@@ -112,9 +107,9 @@ class BookingController {
         const bookings = Array.from(this.doctorSlots).filter(slot => slot.doctorId === doctor.id && slot.startTime >= startDay && slot.endTime <= endDay && slot.status === "BOOKED");
         console.log(bookings);
     }
-    getMostTrendingDoctor() {
-        const mostTrendingDoctor = Array.from(this.doctorBookings).sort((a, b) => b.bookingsCount - a.bookingsCount)[0];
-        return mostTrendingDoctor;
+    getMostTrendingDoctor(docs) {
+        const mostTrendingDoctor = docs.sort((a, b) => b.bookingsCount - a.bookingsCount)[0];
+        console.log(`Most trending doctor: ${mostTrendingDoctor.id} with Bookings: ${mostTrendingDoctor.bookingsCount}`);
     }
 }
 exports.BookingController = BookingController;

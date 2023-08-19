@@ -1,4 +1,3 @@
-import { Booking } from "../models/Booking";
 import { Doctor } from "../models/Doctor";
 import { DoctorBookings } from "../models/DoctorBookings";
 import { DoctorSlot } from "../models/DoctorSlot";
@@ -9,12 +8,7 @@ import { convertClockTimeToEpoch, convertEpochToReadableTime, getEndOfDay, getSt
 
 export class BookingController {
 
-    doctorSlots: Set<DoctorSlot> = new Set();
-
-    doctorBookings: Set<DoctorBookings> = new Set(); 
-
-    bookings: Set<Booking> = new Set();
-    
+    doctorSlots: Set<DoctorSlot> = new Set();    
 
     markDocAvail(doctor: Doctor, slots: { startTime: string, endTime: string }[], isAvailable: boolean): void{
         slots.forEach(slot => {
@@ -79,10 +73,8 @@ export class BookingController {
         const bookingService = new BookingService();
         const booking = bookingService.upsertAppointment(doctorSlot, user.id);
         this.doctorSlots.add(booking);
-        const doctorBooking = Array.from(this.doctorBookings).find(doc => doc.doctorId === doctor.id);
-        if (doctorBooking) {
-            Array.from(this.doctorBookings).find(doc => doc.doctorId === doctor.id)!.bookingsCount += 1;
-        }
+        doctor.bookingsCount++;
+
         console.log(`Booking Created:- ${booking.id}\nPatient: ${user.name} <-> Doctor: ${doctor.name} from ${startTime}`)
         return booking.id;
     }
@@ -92,9 +84,6 @@ export class BookingController {
             console.log("No such bookingId");
             return;
         }
-        this.doctorSlots.forEach(slot => {
-            
-        })
         for (const slot of this.doctorSlots) {
             if (slot.id === bookingId) {
                 this.doctorSlots.delete(slot);
@@ -102,6 +91,7 @@ export class BookingController {
                 slot.status = "AVAILABLE";
                 slot.userId = undefined;
                 this.doctorSlots.add(slot);
+                
                 console.log("Booking Cancelled: " + bookingId)
                 if (slot.waitList.size > 0) {
                     const waitListArray = [...slot.waitList];
@@ -131,9 +121,9 @@ export class BookingController {
         console.log(bookings)
     }
 
-    getMostTrendingDoctor() {
-        const mostTrendingDoctor = Array.from(this.doctorBookings).sort((a, b) => b.bookingsCount - a.bookingsCount)[0];
+    getMostTrendingDoctor(docs: Doctor[]) {
+        const mostTrendingDoctor = docs.sort((a, b) => b.bookingsCount - a.bookingsCount)[0];
 
-        return mostTrendingDoctor;
+        console.log(`Most trending doctor: ${mostTrendingDoctor.id} with Bookings: ${mostTrendingDoctor.bookingsCount}`);
     }
 }

@@ -3,6 +3,7 @@ import { User } from "./User";
 export interface Doctor extends User {
     speciality: Speciality,
     rating: number,
+    bookingsCount: number,
 }
 
 

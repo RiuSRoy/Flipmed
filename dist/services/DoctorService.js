@@ -18,7 +18,8 @@ class DoctorService {
         const doctor = (0, CommonUtils_1.createDBMetaData)({
             id: doctorId,
             name,
-            speciality
+            speciality,
+            bookingsCount: 0
         });
         return doctor;
     }

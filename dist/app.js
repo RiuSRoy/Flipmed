@@ -81,3 +81,5 @@ console.log("\n");
 bookingController.viewPatientBookings(patientD);
 console.log("\n");
 bookingController.bookAppointment(patientF, docCurious, "9:30");
+console.log("\n");
+bookingController.getMostTrendingDoctor(Array.from(docs));
